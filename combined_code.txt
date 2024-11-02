@@ -1,0 +1,191 @@
+# ==== File: data/load_gitignore.py ====
+
+import os
+import pathspec  # Make sure to install pathspec if you haven't already
+
+def load_gitignore(root_dir):
+    """Loads and parses the .gitignore file if it exists."""
+    gitignore_path = os.path.join(root_dir, ".gitignore")
+    if os.path.isfile(gitignore_path):
+        with open(gitignore_path, "r") as f:
+            patterns = f.read().splitlines()
+        return pathspec.PathSpec.from_lines("gitwildmatch", patterns)
+    return None
+# ==== End of data/load_gitignore.py ====
+
+# ==== File: data/combine_files.py ====
+
+import os
+import logging
+from load_gitignore import load_gitignore
+
+def combine_code_files(root_dir, output_file="combined_code.txt", file_types=None):
+    # Load .gitignore patterns
+    gitignore_spec = load_gitignore(root_dir)
+    with open(output_file, "w") as outfile:
+        for subdir, dirs, files in os.walk(root_dir):
+            if gitignore_spec:
+                dirs[:] = [d for d in dirs if not gitignore_spec.match_file(os.path.join(subdir, d))]
+                files = [f for f in files if not gitignore_spec.match_file(os.path.join(subdir, f))]
+            for file in files:
+                if file_types is None or any(file.endswith(ext) for ext in file_types):
+                    file_path = os.path.join(subdir, file)
+                    try:
+                        logging.info(f"Processing: {file_path}")
+                        outfile.write(f"# ==== File: {file_path} ====\n\n")
+                        with open(file_path, "r") as infile:
+                            outfile.write(infile.read())
+                        outfile.write(f"\n# ==== End of {file_path} ====\n\n")
+                    except Exception as e:
+                        logging.error(f"Error processing {file_path}: {e}")
+    logging.info(f"Combined code files written to {output_file}")
+# ==== End of data/combine_files.py ====
+
+# ==== File: data/string_manipulation.py ====
+
+# string_manipulation.py
+
+def is_palindrome(s):
+    """Check if a string is a palindrome."""
+    s = s.lower().replace(" ", "")
+    return s == s[::-1]
+
+def count_vowels(s):
+    """Count the number of vowels in a string."""
+    vowels = "aeiouAEIOU"
+    return sum(1 for char in s if char in vowels)
+
+def reverse_string(s):
+    """Return the reversed version of a string."""
+    return s[::-1]
+
+def to_uppercase(s):
+    """Convert a string to uppercase."""
+    return s.upper()
+
+def to_lowercase(s):
+    """Convert a string to lowercase."""
+    return s.lower()
+
+def remove_whitespace(s):
+    """Remove all whitespace from a string."""
+    return s.replace(" ", "")
+
+def is_anagram(s1, s2):
+    """Check if two strings are anagrams of each other."""
+    return sorted(s1.replace(" ", "").lower()) == sorted(s2.replace(" ", "").lower())
+
+def count_words(s):
+    """Count the number of words in a string."""
+    return len(s.split())
+
+def capitalize_words(s):
+    """Capitalize the first letter of each word in a string."""
+    return ' '.join(word.capitalize() for word in s.split())
+
+def find_substring(s, substring):
+    """Find the index of the first occurrence of a substring in a string."""
+    return s.find(substring)
+
+# Example usage
+if __name__ == "__main__":
+    sample_string = "Madam In Eden Im Adam"
+    print("Is palindrome:", is_palindrome(sample_string))
+    print("Count vowels:", count_vowels(sample_string))
+    print("Reversed string:", reverse_string(sample_string))
+    print("Uppercase:", to_uppercase(sample_string))
+    print("Lowercase:", to_lowercase(sample_string))
+    print("Without whitespace:", remove_whitespace(sample_string))
+    print("Is anagram with 'A man a plan a canal Panama':", is_anagram(sample_string, "A man a plan a canal Panama"))
+    print("Word count:", count_words(sample_string))
+    print("Capitalize words:", capitalize_words(sample_string))
+    print("Find 'Eden':", find_substring(sample_string, "Eden"))
+# ==== End of data/string_manipulation.py ====
+
+# ==== File: data/logging_setup.py ====
+
+import logging
+
+def setup_logging(log_file="codefusion.log"):
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler()
+        ]
+    )
+    logging.info("Logging setup complete.")
+# ==== End of data/logging_setup.py ====
+
+# ==== File: data/company/tesla.txt ====
+
+Tesla, Inc. is an American electric vehicle and clean energy company founded in 2003 by engineers Martin Eberhard and Marc Tarpenning. Later joined by Elon Musk, Tesla set out with a mission to accelerate the world’s transition to sustainable energy. The company initially gained recognition with the Roadster, its high-performance electric sports car, and subsequently achieved significant success with mass-market models like the Model S, Model 3, Model X, and Model Y. Tesla’s innovations in battery technology, autonomous driving capabilities, and its Supercharger network have revolutionized the electric vehicle industry. Today, Tesla is one of the most valuable automakers in the world and continues to push the boundaries of automotive technology and sustainability.
+# ==== End of data/company/tesla.txt ====
+
+# ==== File: data/company/chevron.md ====
+
+# Chevron Corporation
+
+Chevron Corporation, established in 1879 as the Pacific Coast Oil Company, is a leading American multinational energy corporation. Headquartered in San Ramon, California, Chevron operates in over 180 countries, engaging in various aspects of the oil, natural gas, and geothermal energy industries. ([chevron.com](https://www.chevron.com/who-we-are/history), [statista.com](https://www.statista.com/topics/5256/chevron/))
+
+## Operations
+
+Chevron's operations encompass the entire energy spectrum, including:
+
+- **Exploration and Production**: Discovering and extracting crude oil and natural gas.
+- **Refining and Marketing**: Processing crude oil into refined products and distributing them globally.
+- **Chemicals Manufacturing**: Producing petrochemicals and additives.
+- **Power Generation**: Engaging in geothermal energy production.
+
+The company is committed to delivering affordable, reliable, and ever-cleaner energy to meet the world's growing demands. ([chevron.com](https://www.chevron.com/what-we-do))
+
+## Recent Developments
+
+- **Financial Performance**: In the third quarter of 2024, Chevron reported a 21% decline in profits to $4.5 billion, attributed to falling oil prices and narrower fuel-making margins. Despite this, the company exceeded analysts' earnings expectations, partly due to a 7% increase in oil production to 3.36 million barrels of oil equivalent per day, largely from its U.S. shale operations. ([wsj.com](https://www.wsj.com/business/energy-oil/exxon-and-chevron-feel-brunt-of-cheaper-oil-7aa7461e?utm_source=chatgpt.com))
+
+- **Strategic Moves**: Chevron announced plans to relocate its headquarters from California to Houston, Texas, citing the state's more favorable regulatory environment. This move is part of a broader trend of companies shifting operations to Texas. ([thetimes.co.uk](https://www.thetimes.co.uk/article/chevron-becomes-the-latest-big-company-to-quit-california-pv8m50qwg?utm_source=chatgpt.com))
+
+- **Asset Divestment**: The company plans to exit the UK North Sea oil and gas sector by selling its remaining assets, ending its 55-year presence in the region. This sale aligns with Chevron's efforts to finalize its $53 billion acquisition of Hess and involves divesting up to $20 billion in global assets. ([thetimes.co.uk](https://www.thetimes.co.uk/article/chevron-to-sell-remaining-north-sea-oil-and-gas-assets-w999bmhlq?utm_source=chatgpt.com))
+
+## Sustainability Initiatives
+
+Chevron is actively investing in technologies and projects aimed at reducing carbon emissions and promoting sustainability. The company focuses on carbon capture and storage, renewable fuels, and other innovations to advance a lower-carbon future. ([chevron.com](https://www.chevron.com/what-we-do))
+
+## Leadership
+
+Michael K. Wirth serves as the Chairman and Chief Executive Officer of Chevron Corporation, leading the company's strategic direction and operations. ([stockanalysis.com](https://stockanalysis.com/stocks/cvx/company/))
+
+For more detailed information about Chevron's operations, financial performance, and sustainability efforts, visit their official website. ([chevron.com](https://www.chevron.com/))
+# ==== End of data/company/chevron.md ====
+
+# ==== File: data/company/apple.html ====
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Inc.</title>
+</head>
+<body>
+    <h1>Apple Inc.</h1>
+    <p>
+        Apple Inc., established in 1976 by Steve Jobs and Steve Wozniak, is a leading American technology company renowned for its innovative products and services. Headquartered in Cupertino, California, Apple has significantly influenced the personal computing and mobile industries.
+    </p>
+    <h2>Key Products and Services</h2>
+    <ul>
+        <li><strong>Mac Computers:</strong> Since 1984, the Mac lineup has set standards in personal computing.</li>
+        <li><strong>iPhone:</strong> Introduced in 2007, the iPhone revolutionized mobile technology, altering communication and media consumption.</li>
+        <li><strong>iPad:</strong> Launched in 2010, the iPad bridged the gap between smartphones and laptops, creating a new market for digital tablets.</li>
+        <li><strong>Apple Watch:</strong> A wearable device integrating health and fitness tracking with seamless connectivity to other Apple services.</li>
+        <li><strong>Services:</strong> Apple offers a suite of services, including the App Store, Apple Music, iCloud, and Apple TV+, contributing significantly to its revenue.</li>
+    </ul>
+    <h2>Recent Developments</h2>
+    <p>
+        In the fourth quarter of 2024, Apple achieved record revenue of $94.9 billion, with iPhone sales increasing by 5.5% year-over-year to $46.2 billion. The company continues to innovate, introducing new products and services that resonate with consumers worldwide.
+    </p>
+</body>
+</html>
+# ==== End of data/company/apple.html ====
+
