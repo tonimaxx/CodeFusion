@@ -1,0 +1,3 @@
+This is a sample file that should be skipped during file processing.
+The purpose of `skipme.txt` is to act as a file that gets ignored due to `.gitignore` settings.
+Files like this are often excluded from processing to avoid unnecessary content in the final output.
